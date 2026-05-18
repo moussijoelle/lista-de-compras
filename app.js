@@ -1,30 +1,46 @@
 let carrito = [];
 
 const inputProducto = document.getElementById("producto-input");
+const inputPrecio = document.getElementById("precio-input");
 const inputPosicion = document.getElementById("posicion-input");
 const listaCompras = document.getElementById("lista-compras");
 const numeroProductos = document.getElementById("num-prod");
 const mensaje = document.getElementById("mensaje");
 
+function formatearPrecio(valor) {
+  return `€${Number(valor).toFixed(2)}`;
+}
+
 function render() {
   listaCompras.innerHTML = "";
 
-  for (const producto of carrito) {
-    listaCompras.insertAdjacentHTML("beforeend", `<li>${producto}</li>`);
+  for (let i = 0; i < carrito.length; i++) {
+    const item = carrito[i];
+    const linea = `${i}. ${item.producto.toUpperCase()}, ${formatearPrecio(item.precio)}`;
+    listaCompras.insertAdjacentHTML("beforeend", `<li>${linea}</li>`);
   }
 
   numeroProductos.innerText = carrito.length;
 }
 
 function agregar() {
-  const producto = inputProducto.value.trim();
-  if (!producto) {
+  const nombre = inputProducto.value.trim();
+  const textoPrecio = inputPrecio.value.trim();
+  const precio = Number.parseFloat(textoPrecio);
+
+  if (!nombre) {
     mensaje.innerText = "Escribe un producto primero.";
     return;
   }
 
-  carrito.push(producto);
+  if (textoPrecio === "" || !Number.isFinite(precio) || precio < 0) {
+    mensaje.innerText = "Indica un precio válido (€).";
+    return;
+  }
+
+  carrito.push({ producto: nombre, precio });
   inputProducto.value = "";
+  inputPrecio.value = "";
   mensaje.innerText = "";
   render();
 }
@@ -46,6 +62,21 @@ function vaciarCarrito() {
   carrito = [];
   mensaje.innerText = "";
   render();
+}
+
+function totalCompras() {
+  if (carrito.length === 0) {
+    mensaje.innerText = "El carrito está vacío.";
+    return;
+  }
+
+  let total = 0;
+  for (const item of carrito) {
+    total += item.precio;
+  }
+
+  mensaje.innerText = `Total compras: ${formatearPrecio(total)}`;
+  mensaje.style.color="red";
 }
 
 render();
